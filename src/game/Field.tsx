@@ -1,1 +1,80 @@
-export const Field = () => <p>field</p>;
+import { useState } from "react";
+import { getRandomWord } from "../utils/dictionary";
+import { Keyboard } from "./Keyboard";
+import { range } from "../utils/array";
+
+const WORD_SIZE = 5;
+const ROWS = 6;
+
+type CellState = {
+  letter: string;
+  variant?: "correct" | "semi correct" | "incorrect";
+};
+
+const getEmptyState = () =>
+  range(ROWS).map((row) =>
+    range(WORD_SIZE).map((n) => ({
+      letter: "",
+    }))
+  );
+
+export const Field = () => {
+  const [correctWord, setCorrectWord] = useState(getRandomWord());
+
+  const [board, setBoard] = useState<CellState[][]>(getEmptyState());
+
+  const handlePressed = (letter) => {
+    setBoard((prev) => {
+      const newBoard = [...prev];
+
+      const newBoardFlat = newBoard.flat();
+
+      const nextCell = newBoardFlat.find(
+        (element) => element.letter === ""
+      ) as CellState;
+
+      nextCell.letter = letter;
+
+      return newBoard;
+    });
+  };
+
+  const handleBackspace = () => {
+    setBoard((prev) => {
+      const newBoard = [...prev];
+
+      const newBoardFlat = newBoard.flat();
+
+      const nextCell = newBoardFlat.findIndex(
+        (element) => element.letter === ""
+      );
+
+      newBoardFlat[nextCell - 1].letter = "";
+
+      return newBoard;
+    });
+  };
+
+  return (
+    <>
+      <p>{correctWord}</p>
+
+      <div className="board">
+        {board.map((row, rowIndex) => (
+          <div key={rowIndex} className="board-row">
+            {row.map((cell, index) => (
+              <div className="cell" key={index}>
+                {cell.letter}
+              </div>
+            ))}
+          </div>
+        ))}
+      </div>
+
+      <Keyboard
+        onBackspace={() => handleBackspace()}
+        onPressed={(letter) => handlePressed(letter)}
+      />
+    </>
+  );
+};
