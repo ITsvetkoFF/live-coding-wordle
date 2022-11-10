@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { getRandomWord } from "../utils/dictionary";
 import { Keyboard } from "./Keyboard";
 import { range } from "../utils/array";
@@ -22,6 +22,17 @@ export const Field = () => {
   const [correctWord, setCorrectWord] = useState(getRandomWord());
 
   const [board, setBoard] = useState<CellState[][]>(getEmptyState());
+
+  useEffect(() => {
+    const handleKeyboard = (e) => {
+      handlePressed(e.key);
+    };
+
+    document.addEventListener("keypress", handleKeyboard);
+    return () => {
+      document.removeEventListener("keypress", handleKeyboard);
+    };
+  }, [board]);
 
   const handlePressed = (letter) => {
     setBoard((prev) => {
